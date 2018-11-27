@@ -1,0 +1,4 @@
+.stack-work/
+arrows.cabal
+*~
+.*.sw[a-z]
