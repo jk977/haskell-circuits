@@ -3,6 +3,7 @@
 module Main where
 
 import Control.Arrow
+import Control.Monad
 import Data.Bits
 
 -- adder implemented as a normal uncurried function
@@ -61,5 +62,19 @@ adder'' =
         orA = arrowize (.|.)
         xorA = arrowize xor
 
+testAdders :: Bits b => (b,b,b) -> Bool
+testAdders args = x == x' && x' == x'' where
+    x = adder args
+    x' = adder' args
+    x'' = adder'' args
+
 main :: IO ()
-main = undefined
+main = do
+    let bs = [0,1] :: [Int]
+        bits = [(x,y,z) | x <- bs, y <- bs, z <- bs]
+
+    forM_ bits $ \b ->
+        if not . testAdders $ b then
+            putStrLn $ "Adders failed at " ++ (show b)
+        else
+            return ()
