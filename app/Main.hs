@@ -39,21 +39,20 @@ adder' = proc (x,y,cin) -> do
 --  |      v v       | |
 --  |      xor---.   | |
 --  |       |    v   | |
---  |-------|->(.&.) | |
+--  |-------|-> and  | |
 --  |       v    |   v v
---  `----->xor   \  (.&.)
+--  `----->xor   \   and
 --          |     -.  |
 --          |       v v
---          v      (.|.)
---       sumBit
+--          v        or  
+--       sumBit      v
+--                 carry
 
 adder'' :: (Arrow a, Bits b) => a (b,b,b) (b,b)
 adder'' =
     arr (\(x,y,z) -> ((x,y),z)) &&& arr (\(x,y,_) -> (x,y)) -- (((x,y),cin), (x,y))
-    >>> second andA                                         -- (((x,y),cin), a2)
-    >>> first (first (xorA &&& andA))                       -- (((x1,a1),cin), a2)
-    >>> first (arr (\((x,y),z) -> ((x,z),y)))               -- (((x1,cin),a1), a2)
-    >>> first (first xorA)                                  -- ((sumBit,a1), a2)
+    >>> first xorA *** andA                                 -- ((x1,cin), a2)
+    >>> first (xorA &&& andA)                               -- ((sumBit,a1), a2)
     >>> arr (\((x,y),z) -> (x,(y,z)))                       -- (sumBit,(a1,a2))
     >>> second orA                                          -- (sumBit,carry)
     where
