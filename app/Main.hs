@@ -18,15 +18,14 @@ adder (x,y,cin) = (sumBit,carry) where
 -- full adder in arrow notation using proc syntax
 adder' :: (Arrow a, Bits b) => a (b,b,b) (b,b)
 adder' = proc (x,y,cin) -> do
-    x1 <- xor' -< (x, y)
-    sumBit <- xor' -< (x1, cin)
-    a1 <- and' -< (x1, cin)
-    a2 <- and' -< (x, y)
-    carry <- or' -< (a1, a2)
+    x1 <- xorA -< (x, y)
+    sumBit <- xorA -< (x1, cin)
+    a1 <- andA -< (x1, cin)
+    a2 <- andA -< (x, y)
+    carry <- orA -< (a1, a2)
     returnA -< (sumBit, carry)
     where
-        arrowize = arr . uncurry
-        [xor', and', or'] = arrowize <$> [xor, (.&.), (.|.)]
+        [xorA, andA, orA] = arr . uncurry <$> [xor, (.&.), (.|.)]
 
 -- full adder in arrow notation without proc syntax
 -- the following diagram may help to understand how it's modeled:
@@ -56,8 +55,7 @@ adder'' =
     >>> arr (\((x,y),z) -> (x,(y,z)))                       -- (sumBit,(a1,a2))
     >>> second orA                                          -- (sumBit,carry)
     where
-        arrowize = arr . uncurry
-        [andA, orA, xorA] = arrowize <$> [(.&.), (.|.), xor]
+        [andA, orA, xorA] = arr . uncurry <$> [(.&.), (.|.), xor]
 
 testAdders :: Bits b => (b,b,b) -> Bool
 testAdders args = x == x' && x' == x'' where
