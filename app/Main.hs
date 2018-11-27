@@ -6,7 +6,7 @@ import Control.Arrow
 import Control.Monad
 import Data.Bits
 
--- adder implemented as a normal uncurried function
+-- full adder implemented as a normal uncurried function
 adder :: Bits b => (b,b,b) -> (b,b)
 adder (x,y,cin) = (sumBit,carry) where
     x1 = xor x y
@@ -15,7 +15,7 @@ adder (x,y,cin) = (sumBit,carry) where
     a2 = x.&.y
     carry = a1.|.a2
 
--- adder in arrow notation using proc syntax
+-- full adder in arrow notation using proc syntax
 adder' :: (Arrow a, Bits b) => a (b,b,b) (b,b)
 adder' = proc (x,y,cin) -> do
     x1 <- xor' -< (x, y)
@@ -28,7 +28,7 @@ adder' = proc (x,y,cin) -> do
         arrowize = arr . uncurry
         [xor', and', or'] = arrowize <$> [xor, (.&.), (.|.)]
 
--- adder in arrow notation without proc syntax
+-- full adder in arrow notation without proc syntax
 -- the following diagram may help to understand how it's modeled:
 --
 -- cin     x      y
@@ -40,7 +40,7 @@ adder' = proc (x,y,cin) -> do
 --  |      v v       | |
 --  |      xor---.   | |
 --  |       |    v   | |
---  |-------|-> and  | |
+--  |-------|-->and  | |
 --  |       v    |   v v
 --  `----->xor   \   and
 --          |     -.  |
@@ -52,8 +52,7 @@ adder' = proc (x,y,cin) -> do
 adder'' :: (Arrow a, Bits b) => a (b,b,b) (b,b)
 adder'' =
     arr (\(x,y,z) -> ((x,y),z)) &&& arr (\(x,y,_) -> (x,y)) -- (((x,y),cin), (x,y))
-    >>> first xorA *** andA                                 -- ((x1,cin), a2)
-    >>> first (xorA &&& andA)                               -- ((sumBit,a1), a2)
+    >>> (first xorA >>> xorA &&& andA) *** andA             -- ((sumBit,a1), a2)
     >>> arr (\((x,y),z) -> (x,(y,z)))                       -- (sumBit,(a1,a2))
     >>> second orA                                          -- (sumBit,carry)
     where
