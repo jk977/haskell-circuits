@@ -58,9 +58,7 @@ adder'' =
     >>> second orA                                          -- (sumBit,carry)
     where
         arrowize = arr . uncurry
-        andA = arrowize (.&.)
-        orA = arrowize (.|.)
-        xorA = arrowize xor
+        [andA, orA, xorA] = arrowize <$> [(.&.), (.|.), xor]
 
 testAdders :: Bits b => (b,b,b) -> Bool
 testAdders args = x == x' && x' == x'' where
@@ -74,7 +72,7 @@ main = do
         bits = [(x,y,z) | x <- bs, y <- bs, z <- bs]
 
     forM_ bits $ \b ->
-        if not . testAdders $ b then
+        if not $ testAdders b then
             putStrLn $ "Adders failed at " ++ (show b)
         else
             return ()
