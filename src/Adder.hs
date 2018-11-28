@@ -29,23 +29,24 @@ adder' = proc (x,y,cin) -> do
 -- full adder in arrow notation without proc syntax
 -- the following diagram may help to understand how it's modeled:
 --
--- cin     x      y
---  |      |\     |  
---  |      | \   / \  
---  |      |  \ /   ---.
---  |      |   \       |
---  |      |  / -----. |
---  |      v v       | |
---  |      xor---.   | |
---  |       |    v   | |
---  |-------|-->and  | |
---  |       v    |   v v
---  `----->xor   \   and
---          |     --. |
---          |       v v
---          v        or  
---       sumBit      v
---                 carry
+--   x      y        cin
+--   |\     |         |   
+--   | \   / \        |   
+--   |  \ /   ---.    |       
+--   |   \       |    |   
+--   |  / -----. |    |   
+--   v v       | |    |   
+--   xor---.   | |    |   
+--    |    v   | |    |   
+--    |   and<-|-|----|   
+--    |    |   v v    |   
+--    v    |   and    |   
+--   xor<--|----|-----|   
+--    |    |    |         
+--    |    |    v         
+--    v    ---->or        
+-- sumBit       v         
+--            carry        
 
 adder'' :: (Arrow a, Bits b) => a (b,b,b) (b,b)
 adder'' =
