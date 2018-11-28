@@ -1,7 +1,6 @@
 module Adders where
 
 import Control.Arrow
-import Data.Bits
 import Test.HUnit
 
 import Adder

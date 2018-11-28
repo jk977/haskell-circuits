@@ -1,8 +1,5 @@
 module Utils where
 
-tupleToList2 :: (a,a) -> [a]
-tupleToList2 (x,y) = [x,y]
-
 tupleToList3 :: (a,a,a) -> [a]
 tupleToList3 (x,y,z) = [x,y,z]
 

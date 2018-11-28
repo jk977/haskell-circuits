@@ -49,10 +49,12 @@ adder' = proc (x,y,cin) -> do
 
 adder'' :: (Arrow a, Bits b) => a (b,b,b) (b,b)
 adder'' =
-    arr ((\(x,y,z) -> ((x,y),z)) &&& (\(x,y,_) -> (x,y)))   -- (((x,y),cin), (x,y))
-    >>> (first xorA >>> xorA &&& andA) *** andA             -- ((sumBit,a1), a2)
-    >>> arr (\((x,y),z) -> (x,(y,z)))                       -- (sumBit,(a1,a2))
-    >>> second orA                                          -- (sumBit,carry)
+    arr (group &&& tupleInit)
+    >>> (first xorA >>> xorA &&& andA) *** andA
+    >>> arr assoc
+    >>> second orA
     where
+        group (x,y,z) = ((x,y),z)
+        tupleInit (x,y,_) = (x,y)
+        assoc ((x,y),z) = (x,(y,z))
         [andA, orA, xorA] = arr . uncurry <$> [(.&.), (.|.), xor]
-
